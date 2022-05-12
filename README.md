@@ -1,5 +1,5 @@
 # slowloris.cpp
-slowloris attack implemented in C++
+Slowloris attack implemented in C++
 
 ```
 Usage: ./slowloris.exe [-p port] [-t count] [-c count] -u target_url
