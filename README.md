@@ -13,7 +13,7 @@ Usage: ./slowloris.exe [-p port] [-t count] [-c count] -u target_url
 
 Examples:
 
-./slowloris.exe localhost
+./slowloris.exe -u localhost
 
 ./slowloris.exe -p 443 -t 48 -c 5000 localhost
 ```
