@@ -2,6 +2,8 @@
 Slowloris attack implemented in C++
 
 ```
+Compile: g++ slowloris.cpp -pthread -o slowloris
+
 Usage: ./slowloris [-p port] [-t count] [-c count] -u target_url
 
   Options:
